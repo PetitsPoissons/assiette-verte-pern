@@ -1,16 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { RecipesContextProvider } from './context/RecipesContext';
 import HomePage from './components/layout/HomePage';
-import SuperUserPage from './components/layout/SuperUserPage';
+import MariellePage from './components/layout/MariellePage';
 
 const App = () => {
   return (
-    <Router>
-      <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route exact path="/superuser" component={SuperUserPage} />
-      </Switch>
-    </Router>
+    <RecipesContextProvider>
+      <div className="container">
+        <Router>
+          <Switch>
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/marielle" component={MariellePage} />
+          </Switch>
+        </Router>
+      </div>
+    </RecipesContextProvider>
   );
 };
 
