@@ -1,9 +1,11 @@
 import React, { useEffect, useContext } from 'react';
+import { useHistory } from 'react-router-dom';
 import RecipeFinder from '../../apis/RecipeFinder';
 import { RecipesContext } from '../../context/RecipesContext';
 
 const RecipeList4Marielle = (props) => {
   const { recipes, setRecipes } = useContext(RecipesContext);
+  let history = useHistory();
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -16,6 +18,26 @@ const RecipeList4Marielle = (props) => {
     };
     fetchRecipes();
   }, []);
+
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
+    try {
+      await RecipeFinder.delete(`/${id}`);
+      setRecipes(recipes.filter((recipe) => recipe.id !== id));
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleUpdate = (e, id) => {
+    e.stopPropagation();
+    history.push(`/recipes/${id}/update`);
+  };
+
+  const handleRecipeSelect = (id) => {
+    history.push(`/recipes/${id}`);
+  };
+
   return (
     <div className="list-group mt-5">
       <table className="table table-hover table-dark">
@@ -34,17 +56,30 @@ const RecipeList4Marielle = (props) => {
           {recipes &&
             recipes.map((recipe) => {
               return (
-                <tr key={recipe.id}>
+                <tr
+                  key={recipe.id}
+                  onClick={() => handleRecipeSelect(recipe.id)}
+                >
                   <td>{recipe.name}</td>
                   <td>{recipe.category}</td>
-                  <td>{recipe.preparation_time}</td>
+                  <td>{recipe.prepTime}</td>
                   <td>{recipe.difficulty}</td>
                   <td>TBD</td>
                   <td>
-                    <button className="btn btn-warning">Edit</button>
+                    <button
+                      className="btn btn-warning"
+                      onClick={(e) => handleUpdate(e, recipe.id)}
+                    >
+                      Edit
+                    </button>
                   </td>
                   <td>
-                    <button className="btn btn-danger">Delete</button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={(e) => handleDelete(e, recipe.id)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               );
