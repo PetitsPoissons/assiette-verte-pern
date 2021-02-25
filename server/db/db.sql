@@ -1,0 +1,13 @@
+CREATE DATABASE assiette-verte-pern;
+
+CREATE TABLE recipes (
+  id SERIAL PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  name VARCHAR(50) NOT NULL,
+  category VARCHAR(40) NOT NULL,
+  prep_time VARCHAR(10),
+  difficulty VARCHAR(5),
+  prep_steps VARCHAR(500) NOT NULL,
+  ingredients VARCHAR(500) NOT NULL
+);

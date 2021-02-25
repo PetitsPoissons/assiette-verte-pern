@@ -9,8 +9,7 @@ const RecipeList4Marielle = (props) => {
     const fetchRecipes = async () => {
       try {
         const { data } = await RecipeFinder.get('/');
-        console.log(data);
-        setRecipes(data.data.recipes);
+        setRecipes(data);
       } catch (err) {
         console.log(err);
       }
@@ -18,10 +17,10 @@ const RecipeList4Marielle = (props) => {
     fetchRecipes();
   }, []);
   return (
-    <div className="list-group">
+    <div className="list-group mt-5">
       <table className="table table-hover table-dark">
         <thead>
-          <tr className="bg-primary">
+          <tr className="bg-secondary">
             <th scope="col">Recipe Name</th>
             <th scope="col">Category</th>
             <th scope="col">Prep Time</th>

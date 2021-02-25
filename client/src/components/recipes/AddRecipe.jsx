@@ -1,20 +1,61 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import { RecipesContext } from '../../context/RecipesContext';
+import RecipeFinder from '../../apis/RecipeFinder';
 
 const AddRecipe = () => {
+  const { addRecipe } = useContext(RecipesContext);
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [prepTime, setPrepTime] = useState('');
+  const [difficulty, setDifficulty] = useState('');
+  const [ingredients, setIngredients] = useState('');
+  const [prepSteps, setPrepSteps] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const timestampInSeconds = Math.floor(Date.now() / 1000);
+    const createdAt = new Date(timestampInSeconds * 1000);
+    try {
+      const body = {
+        name,
+        category,
+        prepTime,
+        difficulty,
+        ingredients,
+        prepSteps,
+        createdAt,
+      };
+      const { data } = await RecipeFinder.post('/', body);
+      addRecipe(data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
-    <div className="mb-4">
+    <div className="my-4">
       <form action="">
         <div className="form-row">
-          <input
-            type="text"
-            className="form-control my-1"
-            placeholder="Recipe Name"
-          />
+          <div className="col">
+            <input
+              type="text"
+              className="form-control my-1"
+              placeholder="Recipe Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
         </div>
         <div className="form-row">
           <div className="col">
-            <select className="custom-select my-1 mr-sm-2">
-              <option defaultValue>Category</option>
+            <select
+              className="custom-select my-1 mr-sm-2"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option defaultValue disabled>
+                Category
+              </option>
               <option value="breakfast">Breakfast</option>
               <option value="appetizer">Appetizer</option>
               <option value="main">Main Dish</option>
@@ -29,11 +70,19 @@ const AddRecipe = () => {
               type="text"
               className="form-control my-1"
               placeholder="Prep Time"
+              value={prepTime}
+              onChange={(e) => setPrepTime(e.target.value)}
             />
           </div>
           <div className="col">
-            <select className="custom-select my-1 mr-sm-2">
-              <option defaultValue>Difficulty</option>
+            <select
+              className="custom-select my-1 mr-sm-2"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+            >
+              <option defaultValue disabled>
+                Difficulty
+              </option>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -42,10 +91,14 @@ const AddRecipe = () => {
             </select>
           </div>
         </div>
-        <div className="form-row">
+        {/* <div className="form-row">
           <div className="col">
-            <select className="custom-select my-1 mr-sm-2">
-              <option defaultValue>Ingredient</option>
+            <select
+              className="custom-select my-1 mr-sm-2"
+              value={newIngredient.ingredient}
+              onChange={addIngredient}
+            >
+              <option disabled>Ingredient</option>
               <option value="almond_milk">Almond Milk</option>
               <option value="almonds">Almonds</option>
               <option value="beet">Beet</option>
@@ -63,26 +116,48 @@ const AddRecipe = () => {
               type="text"
               className="form-control my-1"
               placeholder="Quantity"
+              value={newIngredient.quantity}
+              onChange={(e) => setNewIngredient({ quantity: e.target.value })}
             />
           </div>
           <div className="col">
             <textarea
               className="form-control my-1"
-              id="exampleFormControlTextarea1"
+              id="ingredientNote"
               rows="1"
+              value={newIngredient.note}
+              onChange={(e) => setNewIngredient({ note: e.target.value })}
             ></textarea>
           </div>
-          <button className="btn btn-primary">Add</button>
-        </div>
+          <button className="btn btn-primary" onClick={addIngredient}>
+            Add
+          </button>
+        </div> */}
         <div className="form-row">
-          <label htmlFor="prepSteps">Preparation Steps:</label>
-          <textarea
-            className="form-control my-1"
-            id="prepSteps"
-            rows="5"
-          ></textarea>
+          <div className="col">
+            <label htmlFor="ingredients">List of Ingredients:</label>
+            <textarea
+              className="form-control my-1"
+              id="ingredients"
+              rows="5"
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+            ></textarea>
+          </div>
+          <div className="col">
+            <label htmlFor="prepSteps">Preparation Steps:</label>
+            <textarea
+              className="form-control my-1"
+              id="prepSteps"
+              rows="5"
+              value={prepSteps}
+              onChange={(e) => setPrepSteps(e.target.value)}
+            ></textarea>
+          </div>
         </div>
-        <button className="btn btn-primary">Add Recipe</button>
+        <button className="btn btn-primary" onClick={handleSubmit}>
+          Add Recipe
+        </button>
       </form>
     </div>
   );
