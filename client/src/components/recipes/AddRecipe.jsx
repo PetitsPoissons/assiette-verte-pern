@@ -5,28 +5,28 @@ import RecipeFinder from '../../apis/RecipeFinder';
 const AddRecipe = () => {
   const { addRecipe } = useContext(RecipesContext);
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState('Category');
   const [prepTime, setPrepTime] = useState('');
-  const [difficulty, setDifficulty] = useState('');
+  const [difficulty, setDifficulty] = useState('Difficulty');
   const [ingredients, setIngredients] = useState('');
   const [prepSteps, setPrepSteps] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleSubmitRecipe = async (e) => {
     e.preventDefault();
     const timestampInSeconds = Math.floor(Date.now() / 1000);
     const createdAt = new Date(timestampInSeconds * 1000);
     try {
       const body = {
         name,
-        category,
+        category: category === 'Category' ? null : category,
         prepTime,
-        difficulty,
+        difficulty: difficulty === 'Difficulty' ? null : parseInt(difficulty),
         ingredients,
         prepSteps,
         createdAt,
       };
       const { data } = await RecipeFinder.post('/', body);
-      addRecipe(data);
+      addRecipe(data.recipe);
     } catch (err) {
       console.log(err);
     }
@@ -53,9 +53,7 @@ const AddRecipe = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option defaultValue disabled>
-                Category
-              </option>
+              <option disabled>Category</option>
               <option value="breakfast">Breakfast</option>
               <option value="appetizer">Appetizer</option>
               <option value="main">Main Dish</option>
@@ -80,9 +78,7 @@ const AddRecipe = () => {
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
             >
-              <option defaultValue disabled>
-                Difficulty
-              </option>
+              <option disabled>Difficulty</option>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -155,7 +151,7 @@ const AddRecipe = () => {
             ></textarea>
           </div>
         </div>
-        <button className="btn btn-primary" onClick={handleSubmit}>
+        <button className="btn btn-primary" onClick={handleSubmitRecipe}>
           Add Recipe
         </button>
       </form>

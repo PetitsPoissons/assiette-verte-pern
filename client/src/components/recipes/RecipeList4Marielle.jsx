@@ -2,6 +2,7 @@ import React, { useEffect, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 import RecipeFinder from '../../apis/RecipeFinder';
 import { RecipesContext } from '../../context/RecipesContext';
+import StarRating from '../reviews/StarRating';
 
 const RecipeList4Marielle = (props) => {
   const { recipes, setRecipes } = useContext(RecipesContext);
@@ -11,7 +12,7 @@ const RecipeList4Marielle = (props) => {
     const fetchRecipes = async () => {
       try {
         const { data } = await RecipeFinder.get('/');
-        setRecipes(data);
+        setRecipes(data.recipes);
       } catch (err) {
         console.log(err);
       }
@@ -36,6 +37,18 @@ const RecipeList4Marielle = (props) => {
 
   const handleRecipeSelect = (id) => {
     history.push(`/recipes/${id}`);
+  };
+
+  const renderRating = (recipe) => {
+    if (!recipe.nbReviews) {
+      return <span className="text-warning">No reviews</span>;
+    }
+    return (
+      <>
+        <StarRating rating={recipe.avgRating} />
+        <span className="text-warning ml-1">({recipe.nbReviews})</span>
+      </>
+    );
   };
 
   return (
@@ -64,7 +77,7 @@ const RecipeList4Marielle = (props) => {
                   <td>{recipe.category}</td>
                   <td>{recipe.prepTime}</td>
                   <td>{recipe.difficulty}</td>
-                  <td>TBD</td>
+                  <td>{renderRating(recipe)}</td>
                   <td>
                     <button
                       className="btn btn-warning"

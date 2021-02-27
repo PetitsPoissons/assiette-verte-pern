@@ -8,9 +8,9 @@ const UpdateRecipePage = (props) => {
   let history = useHistory();
   const { recipes } = useContext(RecipesContext);
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState('Category');
   const [prepTime, setPrepTime] = useState('');
-  const [difficulty, setDifficulty] = useState('');
+  const [difficulty, setDifficulty] = useState('Difficulty');
   const [ingredients, setIngredients] = useState('');
   const [prepSteps, setPrepSteps] = useState('');
 
@@ -18,12 +18,14 @@ const UpdateRecipePage = (props) => {
     const fetchRecipe = async () => {
       try {
         const { data } = await RecipeFinder.get(`/${id}`);
-        setName(data.name);
-        setCategory(data.category);
-        setPrepTime(data.prepTime);
-        setDifficulty(data.difficulty);
-        setIngredients(data.ingredients);
-        setPrepSteps(data.prepSteps);
+        setName(data.recipe.name);
+        setCategory(data.recipe.category);
+        setPrepTime(data.recipe.prepTime);
+        !data.recipe.difficulty
+          ? setDifficulty('Difficulty')
+          : setDifficulty(data.recipe.difficulty);
+        setIngredients(data.recipe.ingredients);
+        setPrepSteps(data.recipe.prepSteps);
       } catch (err) {
         console.log(err);
       }
@@ -33,11 +35,11 @@ const UpdateRecipePage = (props) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedRecipe = await RecipeFinder.put(`/${id}`, {
+    await RecipeFinder.put(`/${id}`, {
       name,
       category,
       prepTime,
-      difficulty,
+      difficulty: difficulty === 'Difficulty' ? null : parseInt(difficulty),
       ingredients,
       prepSteps,
     });
@@ -65,9 +67,7 @@ const UpdateRecipePage = (props) => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option defaultValue disabled>
-                Category
-              </option>
+              <option disabled>Category</option>
               <option value="breakfast">Breakfast</option>
               <option value="appetizer">Appetizer</option>
               <option value="main">Main Dish</option>
@@ -92,9 +92,7 @@ const UpdateRecipePage = (props) => {
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
             >
-              <option defaultValue disabled>
-                Difficulty
-              </option>
+              <option disabled>Difficulty</option>
               <option value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>

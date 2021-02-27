@@ -7,12 +7,17 @@ const db = require('../db');
 const toCamelCase = require('../utils/to-camel-case');
 
 // @route   GET api/recipes
-// @desc    Get all recipes
+// @desc    Get all recipes with their average rating and nb of reviews
 // @access  Private
 router.get('/', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM recipes');
-    res.send(toCamelCase(rows));
+    const recipes = await db.query(
+      'SELECT * FROM recipes LEFT JOIN (SELECT recipe_id, COUNT(review) AS nb_reviews, TRUNC(AVG(rating), 1) AS avg_rating FROM reviews GROUP BY recipe_id) reviews ON reviews.recipe_id = recipes.id;'
+    );
+    res.status(200).json({
+      message: 'The recipes were successfully retrieved',
+      recipes: toCamelCase(recipes.rows),
+    });
   } catch (err) {
     console.log(err.message);
   }
@@ -23,10 +28,20 @@ router.get('/', async (req, res) => {
 // @access  Private
 router.get('/:id', async (req, res) => {
   try {
-    const { rows } = await db.query('SELECT * FROM recipes WHERE id = $1', [
-      req.params.id,
-    ]);
-    res.send(toCamelCase(rows)[0]);
+    const selectedRecipe = await db.query(
+      'SELECT * FROM recipes LEFT JOIN (SELECT recipe_id, COUNT(review) AS nb_reviews, TRUNC(AVG(rating), 1) AS avg_rating FROM reviews GROUP BY recipe_id) reviews ON reviews.recipe_id = recipes.id WHERE id = $1',
+      [req.params.id]
+    );
+    const reviews = await db.query(
+      'SELECT * FROM reviews WHERE recipe_id = $1',
+      [req.params.id]
+    );
+    res.status(200).json({
+      message:
+        'The selected recipe and its reviews were successfully retrieved',
+      recipe: toCamelCase(selectedRecipe.rows)[0],
+      reviews: toCamelCase(reviews.rows),
+    });
   } catch (err) {
     console.log(err.message);
   }
@@ -37,9 +52,7 @@ router.get('/:id', async (req, res) => {
 // @access  Private
 router.post('/', async (req, res) => {
   try {
-    const {
-      rows,
-    } = await db.query(
+    const newRecipe = await db.query(
       'INSERT INTO recipes (name, category, prep_time, difficulty, prep_steps, ingredients, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;',
       [
         req.body.name,
@@ -51,7 +64,10 @@ router.post('/', async (req, res) => {
         req.body.createdAt,
       ]
     );
-    res.send(toCamelCase(rows)[0]);
+    res.status(201).json({
+      message: 'The new recipe was successfully recorded',
+      recipe: toCamelCase(newRecipe.rows)[0],
+    });
   } catch (err) {
     console.log(err.message);
   }
@@ -61,11 +77,8 @@ router.post('/', async (req, res) => {
 // @desc    Update a recipe
 // @access  Private
 router.put('/:id', async (req, res) => {
-  console.log('req.body', req.body);
   try {
-    const {
-      rows,
-    } = await db.query(
+    const updatedRecipe = await db.query(
       'UPDATE recipes SET name = $1, category = $2, prep_time = $3, difficulty = $4, prep_steps = $5, ingredients = $6 WHERE id = $7 RETURNING *',
       [
         req.body.name,
@@ -77,7 +90,10 @@ router.put('/:id', async (req, res) => {
         req.params.id,
       ]
     );
-    res.send(toCamelCase(rows)[0]);
+    res.status(200).json({
+      message: 'The selected recipe was successfully updated',
+      recipe: toCamelCase(updatedRecipe.rows)[0],
+    });
   } catch (err) {
     console.log(err.message);
   }
@@ -88,10 +104,10 @@ router.put('/:id', async (req, res) => {
 // @access  Private
 router.delete('/:id', async (req, res) => {
   try {
-    const { rows } = await db.query('DELETE FROM recipes WHERE id = $1', [
-      req.params.id,
-    ]);
-    res.send('The recipe was successfully deleted');
+    await db.query('DELETE FROM recipes WHERE id = $1', [req.params.id]);
+    res.status(204).json({
+      message: 'The selected recipe was successfully deleted',
+    });
   } catch (err) {
     console.log(err.message);
   }

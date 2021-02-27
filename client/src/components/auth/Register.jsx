@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Register = () => {
-  return <div>Register</div>;
+  return <>Register</>;
 };
 
 export default Register;
